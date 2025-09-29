@@ -1,0 +1,54 @@
+.appContainer {
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  color: #333;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.loading {
+  color: #555;
+  font-style: italic;
+}
+
+.error {
+  color: #ff4d4d;
+  font-weight: bold;
+}
+
+.footer {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #333;
+  color: #fff;
+  width: 100%;
+}
