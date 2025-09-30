@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PixelCanvas from "./components/PixelCanvas";
 import Palette from "./components/Palette.tsx";
 import { usePixels } from "./hooks/usePixels.tsx";
+import { startPixelPolling } from "./api/client";
 import styles from "./App.module.css";
 
 const GRID_WIDTH = 64;
@@ -21,8 +22,13 @@ const COLORS = [
 ];
 
 function App() {
-  const { pixels, loading, error, updatePixel } = usePixels();
+  const { pixels, loading, updatePixel, fetchPixels } = usePixels();
   const [selectedColor, setSelectedColor] = useState<string>(COLORS[0]);
+
+  useEffect(() => {
+    const pollingInterval = startPixelPolling(() => fetchPixels(false)); // Pass false for subsequent loads
+    return () => clearInterval(pollingInterval as unknown as number);
+  }, [fetchPixels]);
 
   const handlePixelClick = (x: number, y: number) => {
     updatePixel(x, y, selectedColor);
@@ -43,7 +49,6 @@ function App() {
           onSelect={setSelectedColor}
         />
         {loading && <p className={styles.loading}>Loading pixels...</p>}
-        {error && <p className={styles.error}>{error}</p>}
         <PixelCanvas
           pixels={pixels}
           onPixelClick={handlePixelClick}

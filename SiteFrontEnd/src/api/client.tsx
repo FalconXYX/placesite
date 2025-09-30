@@ -1,11 +1,14 @@
-import axios from "axios";
+import { supabase } from "./supabaseClient";
 import type { Pixel } from "./types";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+let lastPixelPlacementTime = 0;
 
 export async function getPixels(): Promise<Pixel[]> {
-  const res = await axios.get<Pixel[]>(`${API_URL}/pixels`);
-  return res.data;
+  const { data, error } = await supabase.from("pixels").select("*");
+  if (error) {
+    throw new Error(`Error fetching pixels: ${error.message}`);
+  }
+  return data || [];
 }
 
 export async function setPixel(
@@ -13,6 +16,31 @@ export async function setPixel(
   y: number,
   color: string
 ): Promise<Pixel> {
-  const res = await axios.post<Pixel>(`${API_URL}/pixel`, { x, y, color });
-  return res.data;
+  const currentTime = Date.now();
+  if (currentTime - lastPixelPlacementTime < 1000) {
+    throw new Error("You must wait 1 second before placing another pixel.");
+  }
+  lastPixelPlacementTime = currentTime;
+
+  const { data, error } = await supabase
+    .from("pixels")
+    .insert([{ x, y, color }])
+    .single();
+  if (error) {
+    throw new Error(`Error setting pixel: ${error.message}`);
+  }
+  return data;
+}
+
+export function startPixelPolling(
+  callback: (pixels: Pixel[]) => void
+): NodeJS.Timer {
+  return setInterval(async () => {
+    try {
+      const pixels = await getPixels();
+      callback(pixels);
+    } catch (error) {
+      console.error("Error during pixel polling:", error);
+    }
+  }, 1000);
 }
